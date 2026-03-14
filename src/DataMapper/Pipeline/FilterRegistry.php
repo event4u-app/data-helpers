@@ -16,6 +16,7 @@ use event4u\DataHelpers\DataMapper\Pipeline\Filters\CastToString;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\Clamp;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\ConvertEmptyToNull;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\Count;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\DateFormat;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\DecodeHtmlEntities;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\DefaultValue;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\First;
@@ -28,6 +29,7 @@ use event4u\DataHelpers\DataMapper\Pipeline\Filters\Replace;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\Reverse;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\Sort;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\Sum;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\Timestamp;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\TrimStrings;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\Ucfirst;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\Ucwords;
@@ -157,6 +159,10 @@ final class FilterRegistry
             Sort::class,
             Unique::class,
             Join::class,
+
+            // Date/Time transformers
+            DateFormat::class,
+            Timestamp::class,
 
             // Other transformers
             JsonEncode::class,

@@ -214,12 +214,27 @@ Cast values to specific types:
 ### Date Filters
 
 ```php
-// date - Format date
-'{{ created | date:"Y-m-d" }}' // DateTime -> '2024-01-15'
+// date - Format date (default: 'Y-m-d H:i:s')
+'{{ created | date }}'          // DateTime -> '2024-01-15 10:30:00'
+'{{ created | date:"Y-m-d" }}'  // DateTime -> '2024-01-15'
+'{{ created | date:"d.m.Y" }}'  // DateTime -> '15.01.2024'
+'{{ created | date:"c" }}'      // DateTime -> ISO 8601
 
-// timestamp - Convert to timestamp
-'{{ created | timestamp }}' // DateTime -> 1705276800
+// date_format - Alias for date
+'{{ created | date_format:"Y-m-d" }}' // Same as date
+
+// timestamp - Convert to Unix timestamp (int)
+'{{ created | timestamp }}'       // DateTime -> 1705276800
+'{{ created | timestamp }}'       // '2024-01-15' -> 1705276800
+'{{ created | timestamp }}'       // 1705276800 -> 1705276800 (pass-through)
 ```
+
+**Supported input types for `date` and `timestamp`:**
+- `DateTimeInterface` (DateTime, DateTimeImmutable, Carbon)
+- Date strings (any format supported by `strtotime()`)
+- Unix timestamps (int) — `date` reformats, `timestamp` passes through
+
+The format parameter uses [PHP date format](https://www.php.net/manual/en/datetime.format.php) characters.
 
 ### Data Cleaning Filters
 

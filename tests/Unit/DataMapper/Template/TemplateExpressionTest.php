@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Unit\DataMapper\Template;
 
+use DateTimeImmutable;
+use DateTimeZone;
 use event4u\DataHelpers\DataMapper;
 
 describe('Template Expressions', function(): void {
@@ -152,5 +154,152 @@ describe('Template Expressions', function(): void {
         expect($result['name'])->toBe('ALICE');
         expect($result['email'])->toBe('alice@example.com');
         expect($result['city'])->toBe('Unknown');
+    });
+
+    it('formats DateTime with date filter using default format', function(): void {
+        $template = [
+            'created' => '{{ event.created | date }}',
+        ];
+
+        $sources = [
+            'event' => ['created' => new DateTimeImmutable('2024-01-15 10:30:00')],
+        ];
+
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+        expect($result['created'])->toBe('2024-01-15 10:30:00');
+    });
+
+    it('formats DateTime with date filter and custom format', function(): void {
+        $template = [
+            'date' => '{{ event.created | date:"Y-m-d" }}',
+        ];
+
+        $sources = [
+            'event' => ['created' => new DateTimeImmutable('2024-01-15 10:30:00')],
+        ];
+
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+        expect($result['date'])->toBe('2024-01-15');
+    });
+
+    it('formats DateTime with date filter and German format', function(): void {
+        $template = [
+            'date' => '{{ event.created | date:"d.m.Y" }}',
+        ];
+
+        $sources = [
+            'event' => ['created' => new DateTimeImmutable('2024-01-15')],
+        ];
+
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+        expect($result['date'])->toBe('15.01.2024');
+    });
+
+    it('formats date string with date filter', function(): void {
+        $template = [
+            'date' => '{{ event.created | date:"Y-m-d" }}',
+        ];
+
+        $sources = [
+            'event' => ['created' => '2024-01-15 10:30:00'],
+        ];
+
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+        expect($result['date'])->toBe('2024-01-15');
+    });
+
+    it('formats unix timestamp with date filter', function(): void {
+        $template = [
+            'date' => '{{ event.created | date:"Y-m-d" }}',
+        ];
+
+        $sources = [
+            'event' => ['created' => 1705276800], // 2024-01-15 00:00:00 UTC
+        ];
+
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+        $expected = (new DateTimeImmutable('@1705276800'))->format('Y-m-d');
+        expect($result['date'])->toBe($expected);
+    });
+
+    it('converts DateTime to timestamp', function(): void {
+        $dt = new DateTimeImmutable('2024-01-15 00:00:00', new DateTimeZone('UTC'));
+
+        $template = [
+            'ts' => '{{ event.created | timestamp }}',
+        ];
+
+        $sources = [
+            'event' => ['created' => $dt],
+        ];
+
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+        expect($result['ts'])->toBe($dt->getTimestamp());
+    });
+
+    it('converts date string to timestamp', function(): void {
+        $template = [
+            'ts' => '{{ event.created | timestamp }}',
+        ];
+
+        $sources = [
+            'event' => ['created' => '2024-01-15 00:00:00'],
+        ];
+
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+        $expected = (new DateTimeImmutable('2024-01-15 00:00:00'))->getTimestamp();
+        expect($result['ts'])->toBe($expected);
+    });
+
+    it('passes through int value in timestamp filter', function(): void {
+        $template = [
+            'ts' => '{{ event.created | timestamp }}',
+        ];
+
+        $sources = [
+            'event' => ['created' => 1705276800],
+        ];
+
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+        expect($result['ts'])->toBe(1705276800);
+    });
+
+    it('skips null values in date and timestamp filters', function(): void {
+        $template = [
+            'date' => '{{ event.created | date:"Y-m-d" }}',
+            'ts' => '{{ event.created | timestamp }}',
+        ];
+
+        $sources = [
+            'event' => ['created' => null],
+        ];
+
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+        // Null source values are not written to target (general DataMapper behavior)
+        expect($result)->not->toHaveKey('date');
+        expect($result)->not->toHaveKey('ts');
+    });
+
+    it('uses date_format alias', function(): void {
+        $template = [
+            'date' => '{{ event.created | date_format:"Y-m-d" }}',
+        ];
+
+        $sources = [
+            'event' => ['created' => new DateTimeImmutable('2024-01-15 10:30:00')],
+        ];
+
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+        expect($result['date'])->toBe('2024-01-15');
     });
 });
