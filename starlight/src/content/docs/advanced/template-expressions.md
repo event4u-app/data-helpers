@@ -236,6 +236,43 @@ Cast values to specific types:
 
 The format parameter uses [PHP date format](https://www.php.net/manual/en/datetime.format.php) characters.
 
+### Validation Filters
+
+```php
+// in - Validate value is in allowed list (returns value or null + exception)
+'{{ type | in:[VEHICLE,ORDER,PROJECT] }}'              // 'VEHICLE' -> 'VEHICLE'
+'{{ type | in:[VEHICLE,ORDER,PROJECT] }}'              // 'UNKNOWN' -> null + exception
+
+// in with optional flag - empty/null values are allowed without error
+'{{ type | in:[VEHICLE,ORDER]:optional }}'             // '' -> null (no error)
+
+// in_list - Alias for in
+'{{ type | in_list:[ACTIVE,INACTIVE] }}'
+
+// not_in - Validate value is NOT in blocked list
+'{{ status | not_in:[DELETED,ARCHIVED] }}'             // 'ACTIVE' -> 'ACTIVE'
+'{{ status | not_in:[DELETED,ARCHIVED] }}'             // 'DELETED' -> null + exception
+
+// not_in with optional flag
+'{{ status | not_in:[DELETED,ARCHIVED]:optional }}'    // '' -> null (no error)
+
+// not_in_list - Alias for not_in
+'{{ status | not_in_list:[DELETED] }}'
+```
+
+Combine with other filters for full validation chains:
+
+```php
+// Normalize and validate
+'{{ ownerType | string | upper | in:[VEHICLE,ORDER,PROJECT,TOOL,EMPLOYEE] }}'
+```
+
+When a value fails validation, the exception is handled via `MapperExceptions`:
+- **Collect mode** (default): Exception is collected, `null` is returned
+- **Throw mode**: Exception is thrown immediately
+
+The `:optional` flag treats empty strings and `null` as "not set" — no error is raised and `null` is returned.
+
 ### Data Cleaning Filters
 
 ```php

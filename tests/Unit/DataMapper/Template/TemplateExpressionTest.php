@@ -7,6 +7,7 @@ namespace Tests\Unit\DataMapper\Template;
 use DateTimeImmutable;
 use DateTimeZone;
 use event4u\DataHelpers\DataMapper;
+use event4u\DataHelpers\DataMapper\MapperExceptions;
 
 describe('Template Expressions', function(): void {
     it('evaluates simple expression', function(): void {
@@ -301,5 +302,151 @@ describe('Template Expressions', function(): void {
         $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
         expect($result['date'])->toBe('2024-01-15');
+    });
+});
+
+// =============================================================================
+// InList / NotInList Filters
+// =============================================================================
+
+describe('InList filter (| in)', function(): void {
+    beforeEach(function(): void {
+        MapperExceptions::setCollectExceptionsEnabled(true);
+        MapperExceptions::clearExceptions();
+    });
+
+    afterEach(function(): void {
+        MapperExceptions::clearExceptions();
+        MapperExceptions::setCollectExceptionsEnabled(false);
+    });
+
+    it('passes through value that is in the allowed list', function(): void {
+        $template = [
+            'type' => '{{ item.type | in:[VEHICLE,ORDER,PROJECT] }}',
+        ];
+
+        $sources = ['item' => ['type' => 'VEHICLE']];
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+        expect($result['type'])->toBe('VEHICLE');
+        expect(MapperExceptions::hasExceptions())->toBeFalse();
+    });
+
+    it('returns null and collects exception for value not in list', function(): void {
+        $template = [
+            'type' => '{{ item.type | in:[VEHICLE,ORDER,PROJECT] }}',
+        ];
+
+        $sources = ['item' => ['type' => 'UNKNOWN']];
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+        expect($result['type'])->toBeNull();
+        expect(MapperExceptions::hasExceptions())->toBeTrue();
+    });
+
+    it('returns null and collects exception for empty string without optional', function(): void {
+        $template = [
+            'type' => '{{ item.type | in:[VEHICLE,ORDER] }}',
+        ];
+
+        $sources = ['item' => ['type' => '']];
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+        expect($result['type'])->toBeNull();
+        expect(MapperExceptions::hasExceptions())->toBeTrue();
+    });
+
+    it('returns null without error for empty string with optional flag', function(): void {
+        $template = [
+            'type' => '{{ item.type | in:[VEHICLE,ORDER]:optional }}',
+        ];
+
+        $sources = ['item' => ['type' => '']];
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+        expect($result['type'])->toBeNull();
+        expect(MapperExceptions::hasExceptions())->toBeFalse();
+    });
+
+    it('works with chained filters like string and upper', function(): void {
+        $template = [
+            'type' => '{{ item.type | string | upper | in:[VEHICLE,ORDER,PROJECT] }}',
+        ];
+
+        $sources = ['item' => ['type' => 'vehicle']];
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+        expect($result['type'])->toBe('VEHICLE');
+        expect(MapperExceptions::hasExceptions())->toBeFalse();
+    });
+
+    it('uses in_list alias', function(): void {
+        $template = [
+            'type' => '{{ item.type | in_list:[ACTIVE,INACTIVE] }}',
+        ];
+
+        $sources = ['item' => ['type' => 'ACTIVE']];
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+        expect($result['type'])->toBe('ACTIVE');
+    });
+});
+
+describe('NotInList filter (| not_in)', function(): void {
+    beforeEach(function(): void {
+        MapperExceptions::setCollectExceptionsEnabled(true);
+        MapperExceptions::clearExceptions();
+    });
+
+    afterEach(function(): void {
+        MapperExceptions::clearExceptions();
+        MapperExceptions::setCollectExceptionsEnabled(false);
+    });
+
+    it('passes through value that is not in the blocked list', function(): void {
+        $template = [
+            'status' => '{{ item.status | not_in:[DELETED,ARCHIVED] }}',
+        ];
+
+        $sources = ['item' => ['status' => 'ACTIVE']];
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+        expect($result['status'])->toBe('ACTIVE');
+        expect(MapperExceptions::hasExceptions())->toBeFalse();
+    });
+
+    it('returns null and collects exception for value in blocked list', function(): void {
+        $template = [
+            'status' => '{{ item.status | not_in:[DELETED,ARCHIVED] }}',
+        ];
+
+        $sources = ['item' => ['status' => 'DELETED']];
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+        expect($result['status'])->toBeNull();
+        expect(MapperExceptions::hasExceptions())->toBeTrue();
+    });
+
+    it('returns null without error for empty string with optional flag', function(): void {
+        $template = [
+            'status' => '{{ item.status | not_in:[DELETED,ARCHIVED]:optional }}',
+        ];
+
+        $sources = ['item' => ['status' => '']];
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+        expect($result['status'])->toBeNull();
+        expect(MapperExceptions::hasExceptions())->toBeFalse();
+    });
+
+    it('uses not_in_list alias', function(): void {
+        $template = [
+            'status' => '{{ item.status | not_in_list:[DELETED] }}',
+        ];
+
+        $sources = ['item' => ['status' => 'ACTIVE']];
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+        expect($result['status'])->toBe('ACTIVE');
     });
 });

@@ -20,11 +20,13 @@ use event4u\DataHelpers\DataMapper\Pipeline\Filters\DateFormat;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\DecodeHtmlEntities;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\DefaultValue;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\First;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\InList;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\Join;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\JsonEncode;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\Keys;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\Last;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\LowercaseStrings;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\NotInList;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\Replace;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\Reverse;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\Sort;
@@ -163,6 +165,10 @@ final class FilterRegistry
             // Date/Time transformers
             DateFormat::class,
             Timestamp::class,
+
+            // Validation filters
+            InList::class,
+            NotInList::class,
 
             // Other transformers
             JsonEncode::class,
