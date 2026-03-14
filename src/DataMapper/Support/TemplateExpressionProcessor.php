@@ -154,7 +154,8 @@ final class TemplateExpressionProcessor
         }
 
         // Apply filters if present
-        if ($parsed['hasFilters'] && null !== $value) {
+        // When value is null, still call FilterEngine if 'required' flag is present
+        if ($parsed['hasFilters'] && (null !== $value || FilterEngine::hasRequiredFlag($parsed['filters']))) {
             return FilterEngine::apply($value, $parsed['filters']);
         }
 

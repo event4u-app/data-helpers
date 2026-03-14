@@ -7,6 +7,8 @@ namespace Tests\Unit\DataMapper\Template;
 use DateTimeImmutable;
 use DateTimeZone;
 use event4u\DataHelpers\DataMapper;
+use event4u\DataHelpers\DataMapper\MapperExceptions;
+use event4u\DataHelpers\DataMapper\Support\MappingFacade;
 
 describe('Template Expressions', function(): void {
     it('evaluates simple expression', function(): void {
@@ -301,5 +303,673 @@ describe('Template Expressions', function(): void {
         $result = DataMapper::source($sources)->template($template)->map()->getTarget();
 
         expect($result['date'])->toBe('2024-01-15');
+    });
+});
+
+// =============================================================================
+// InList / NotInList Filters
+// =============================================================================
+
+describe('InList filter (| in)', function(): void {
+    beforeEach(function(): void {
+        MapperExceptions::setCollectExceptionsEnabled(true);
+        MapperExceptions::clearExceptions();
+    });
+
+    afterEach(function(): void {
+        MapperExceptions::clearExceptions();
+        MapperExceptions::setCollectExceptionsEnabled(false);
+    });
+
+    it('passes through value that is in the allowed list', function(): void {
+        $template = [
+            'type' => '{{ item.type | in:[VEHICLE,ORDER,PROJECT] }}',
+        ];
+
+        $sources = ['item' => ['type' => 'VEHICLE']];
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+        expect($result['type'])->toBe('VEHICLE');
+        expect(MapperExceptions::hasExceptions())->toBeFalse();
+    });
+
+    it('returns null and collects exception for value not in list', function(): void {
+        $template = [
+            'type' => '{{ item.type | in:[VEHICLE,ORDER,PROJECT] }}',
+        ];
+
+        $sources = ['item' => ['type' => 'UNKNOWN']];
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+        expect($result)->not->toHaveKey('type');
+        expect(MapperExceptions::hasExceptions())->toBeTrue();
+    });
+
+    it('returns null and collects exception for empty string without optional', function(): void {
+        $template = [
+            'type' => '{{ item.type | in:[VEHICLE,ORDER] }}',
+        ];
+
+        $sources = ['item' => ['type' => '']];
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+        expect($result)->not->toHaveKey('type');
+        expect(MapperExceptions::hasExceptions())->toBeTrue();
+    });
+
+    it('returns null without error for empty string with optional flag', function(): void {
+        $template = [
+            'type' => '{{ item.type | in:[VEHICLE,ORDER]:optional }}',
+        ];
+
+        $sources = ['item' => ['type' => '']];
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+        expect($result)->not->toHaveKey('type');
+        expect(MapperExceptions::hasExceptions())->toBeFalse();
+    });
+
+    it('works with chained filters like string and upper', function(): void {
+        $template = [
+            'type' => '{{ item.type | string | upper | in:[VEHICLE,ORDER,PROJECT] }}',
+        ];
+
+        $sources = ['item' => ['type' => 'vehicle']];
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+        expect($result['type'])->toBe('VEHICLE');
+        expect(MapperExceptions::hasExceptions())->toBeFalse();
+    });
+
+    it('uses in_list alias', function(): void {
+        $template = [
+            'type' => '{{ item.type | in_list:[ACTIVE,INACTIVE] }}',
+        ];
+
+        $sources = ['item' => ['type' => 'ACTIVE']];
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+        expect($result['type'])->toBe('ACTIVE');
+    });
+});
+
+describe('NotInList filter (| not_in)', function(): void {
+    beforeEach(function(): void {
+        MapperExceptions::setCollectExceptionsEnabled(true);
+        MapperExceptions::clearExceptions();
+    });
+
+    afterEach(function(): void {
+        MapperExceptions::clearExceptions();
+        MapperExceptions::setCollectExceptionsEnabled(false);
+    });
+
+    it('passes through value that is not in the blocked list', function(): void {
+        $template = [
+            'status' => '{{ item.status | not_in:[DELETED,ARCHIVED] }}',
+        ];
+
+        $sources = ['item' => ['status' => 'ACTIVE']];
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+        expect($result['status'])->toBe('ACTIVE');
+        expect(MapperExceptions::hasExceptions())->toBeFalse();
+    });
+
+    it('returns null and collects exception for value in blocked list', function(): void {
+        $template = [
+            'status' => '{{ item.status | not_in:[DELETED,ARCHIVED] }}',
+        ];
+
+        $sources = ['item' => ['status' => 'DELETED']];
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+        expect($result)->not->toHaveKey('status');
+        expect(MapperExceptions::hasExceptions())->toBeTrue();
+    });
+
+    it('returns null without error for empty string with optional flag', function(): void {
+        $template = [
+            'status' => '{{ item.status | not_in:[DELETED,ARCHIVED]:optional }}',
+        ];
+
+        $sources = ['item' => ['status' => '']];
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+        expect($result)->not->toHaveKey('status');
+        expect(MapperExceptions::hasExceptions())->toBeFalse();
+    });
+
+    it('uses not_in_list alias', function(): void {
+        $template = [
+            'status' => '{{ item.status | not_in_list:[DELETED] }}',
+        ];
+
+        $sources = ['item' => ['status' => 'ACTIVE']];
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+        expect($result['status'])->toBe('ACTIVE');
+    });
+
+    // ── required / not_required / optional meta-flags ──────────────────
+
+    it('passes value through when required and value is present', function(): void {
+        MapperExceptions::reset();
+
+        $template = [
+            'name' => '{{ user.name | required | string }}',
+        ];
+
+        $sources = ['user' => ['name' => 'Alice']];
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+        expect($result['name'])->toBe('Alice');
+        expect(MapperExceptions::hasExceptions())->toBeFalse();
+    });
+
+    it('throws exception when required and value is null', function(): void {
+        MapperExceptions::reset();
+
+        $template = [
+            'name' => '{{ user.name | required | string }}',
+        ];
+
+        $sources = ['user' => ['name' => null]];
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+        expect($result)->not->toHaveKey('name');
+        expect(MapperExceptions::hasExceptions())->toBeTrue();
+        expect(MapperExceptions::getExceptions()[0]->getMessage())
+            ->toContain('required');
+
+        MapperExceptions::clearExceptions();
+    });
+
+    it('throws exception when required and value is empty string', function(): void {
+        MapperExceptions::reset();
+
+        $template = [
+            'name' => '{{ user.name | required | string }}',
+        ];
+
+        $sources = ['user' => ['name' => '']];
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+        expect($result)->not->toHaveKey('name');
+        expect(MapperExceptions::hasExceptions())->toBeTrue();
+
+        MapperExceptions::clearExceptions();
+    });
+
+    it('returns null without error when not_required and value is null', function(): void {
+        MapperExceptions::reset();
+
+        $template = [
+            'name' => '{{ user.name | not_required | string }}',
+        ];
+
+        $sources = ['user' => ['name' => null]];
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+        expect($result)->not->toHaveKey('name');
+        expect(MapperExceptions::hasExceptions())->toBeFalse();
+    });
+
+    it('returns null without error when optional and value is empty string', function(): void {
+        MapperExceptions::reset();
+
+        $template = [
+            'name' => '{{ user.name | optional | string }}',
+        ];
+
+        $sources = ['user' => ['name' => '']];
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+        expect($result)->not->toHaveKey('name');
+        expect(MapperExceptions::hasExceptions())->toBeFalse();
+    });
+
+    it('handles required at end of filter chain (position-independent)', function(): void {
+        MapperExceptions::reset();
+
+        $template = [
+            'name' => '{{ user.name | string | upper | required }}',
+        ];
+
+        $sources = ['user' => ['name' => 'Alice']];
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+        expect($result['name'])->toBe('ALICE');
+        expect(MapperExceptions::hasExceptions())->toBeFalse();
+    });
+
+    it('handles not_required at end of filter chain (position-independent)', function(): void {
+        MapperExceptions::reset();
+
+        $template = [
+            'type' => '{{ item.type | string | upper | in:[VEHICLE,ORDER] | not_required }}',
+        ];
+
+        $sources = ['item' => ['type' => '']];
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+        expect($result)->not->toHaveKey('type');
+        expect(MapperExceptions::hasExceptions())->toBeFalse();
+    });
+
+    it('combines required with in filter', function(): void {
+        MapperExceptions::reset();
+
+        $template = [
+            'type' => '{{ item.type | in:[VEHICLE,ORDER] | required }}',
+        ];
+
+        $sources = ['item' => ['type' => null]];
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+        expect($result)->not->toHaveKey('type');
+        expect(MapperExceptions::hasExceptions())->toBeTrue();
+
+        MapperExceptions::clearExceptions();
+    });
+
+    it('combines not_required with in filter and valid value', function(): void {
+        MapperExceptions::reset();
+
+        $template = [
+            'type' => '{{ item.type | string | upper | in:[VEHICLE,ORDER] | not_required }}',
+        ];
+
+        $sources = ['item' => ['type' => 'vehicle']];
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+        expect($result['type'])->toBe('VEHICLE');
+        expect(MapperExceptions::hasExceptions())->toBeFalse();
+    });
+
+    it('treats whitespace-only string as empty when required', function(): void {
+        MapperExceptions::reset();
+
+        $template = [
+            'name' => '{{ user.name | required }}',
+        ];
+
+        $sources = ['user' => ['name' => '   ']];
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+        expect($result)->not->toHaveKey('name');
+        expect(MapperExceptions::hasExceptions())->toBeTrue();
+
+        MapperExceptions::clearExceptions();
+    });
+
+    it('treats undefined source path as null when required', function(): void {
+        MapperExceptions::reset();
+
+        $template = [
+            'name' => '{{ user.missing_field | required }}',
+        ];
+
+        $sources = ['user' => ['name' => 'Alice']];
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+        expect($result)->not->toHaveKey('name');
+        expect(MapperExceptions::hasExceptions())->toBeTrue();
+
+        MapperExceptions::clearExceptions();
+    });
+
+    it('works with required as only filter', function(): void {
+        MapperExceptions::reset();
+
+        $template = [
+            'name' => '{{ user.name | required }}',
+        ];
+
+        $sources = ['user' => ['name' => 'Alice']];
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+        expect($result['name'])->toBe('Alice');
+        expect(MapperExceptions::hasExceptions())->toBeFalse();
+    });
+
+    it('passes integer 0 through when required', function(): void {
+        MapperExceptions::reset();
+
+        $template = [
+            'count' => '{{ item.count | required }}',
+        ];
+
+        $sources = ['item' => ['count' => 0]];
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+        expect($result['count'])->toBe(0);
+        expect(MapperExceptions::hasExceptions())->toBeFalse();
+    });
+
+    it('passes boolean false through when required', function(): void {
+        MapperExceptions::reset();
+
+        $template = [
+            'active' => '{{ item.active | required }}',
+        ];
+
+        $sources = ['item' => ['active' => false]];
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+        expect($result['active'])->toBeFalse();
+        expect(MapperExceptions::hasExceptions())->toBeFalse();
+    });
+
+    it('last meta-flag wins when both required and not_required are present', function(): void {
+        MapperExceptions::reset();
+
+        // not_required comes last → should win
+        $template = [
+            'name' => '{{ user.name | required | string | not_required }}',
+        ];
+
+        $sources = ['user' => ['name' => '']];
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+        expect($result)->not->toHaveKey('name');
+        expect(MapperExceptions::hasExceptions())->toBeFalse();
+    });
+
+    it('uses optional alias with null value', function(): void {
+        MapperExceptions::reset();
+
+        $template = [
+            'name' => '{{ user.name | optional }}',
+        ];
+
+        $sources = ['user' => ['name' => null]];
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+        expect($result)->not->toHaveKey('name');
+        expect(MapperExceptions::hasExceptions())->toBeFalse();
+    });
+
+    it('throws exception for required with in filter and invalid value', function(): void {
+        MapperExceptions::reset();
+
+        $template = [
+            'type' => '{{ item.type | string | upper | in:[VEHICLE,ORDER] | required }}',
+        ];
+
+        // INVALID is not in the allowed list → in filter throws, required is irrelevant here
+        $sources = ['item' => ['type' => 'INVALID']];
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+        expect($result)->not->toHaveKey('type');
+        expect(MapperExceptions::hasExceptions())->toBeTrue();
+
+        MapperExceptions::clearExceptions();
+    });
+
+    // ── in / not_in edge cases ─────────────────────────────────────────
+
+    it('in filter is case-sensitive', function(): void {
+        MapperExceptions::reset();
+
+        $template = [
+            'type' => '{{ item.type | in:[VEHICLE,ORDER] }}',
+        ];
+
+        // lowercase "vehicle" is not in [VEHICLE,ORDER]
+        $sources = ['item' => ['type' => 'vehicle']];
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+        expect($result)->not->toHaveKey('type');
+        expect(MapperExceptions::hasExceptions())->toBeTrue();
+
+        MapperExceptions::clearExceptions();
+    });
+
+    it('in filter with empty list rejects any value', function(): void {
+        MapperExceptions::reset();
+
+        $template = [
+            'type' => '{{ item.type | in:[] }}',
+        ];
+
+        $sources = ['item' => ['type' => 'VEHICLE']];
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+        expect($result)->not->toHaveKey('type');
+        expect(MapperExceptions::hasExceptions())->toBeTrue();
+
+        MapperExceptions::clearExceptions();
+    });
+
+    it('in filter with single value', function(): void {
+        MapperExceptions::reset();
+
+        $template = [
+            'type' => '{{ item.type | in:[VEHICLE] }}',
+        ];
+
+        $sources = ['item' => ['type' => 'VEHICLE']];
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+        expect($result['type'])->toBe('VEHICLE');
+        expect(MapperExceptions::hasExceptions())->toBeFalse();
+    });
+
+    it('in filter with numeric values', function(): void {
+        MapperExceptions::reset();
+
+        $template = [
+            'status' => '{{ item.status | in:[1,2,3] }}',
+        ];
+
+        $sources = ['item' => ['status' => 2]];
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+        expect($result['status'])->toBe(2);
+        expect(MapperExceptions::hasExceptions())->toBeFalse();
+    });
+
+    it('not_in filter supports not_required alias', function(): void {
+        MapperExceptions::reset();
+
+        $template = [
+            'status' => '{{ item.status | not_in:[DELETED,ARCHIVED]:not_required }}',
+        ];
+
+        $sources = ['item' => ['status' => '']];
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+        expect($result)->not->toHaveKey('status');
+        expect(MapperExceptions::hasExceptions())->toBeFalse();
+    });
+
+    it('in filter with global not_required and filter-level optional together', function(): void {
+        MapperExceptions::reset();
+
+        $template = [
+            'type' => '{{ item.type | in:[VEHICLE,ORDER]:optional | not_required }}',
+        ];
+
+        $sources = ['item' => ['type' => '']];
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+        expect($result)->not->toHaveKey('type');
+        expect(MapperExceptions::hasExceptions())->toBeFalse();
+    });
+
+    it('in filter treats whitespace-only string as empty without optional', function(): void {
+        MapperExceptions::reset();
+
+        $template = [
+            'type' => '{{ item.type | in:[VEHICLE,ORDER] }}',
+        ];
+
+        $sources = ['item' => ['type' => '   ']];
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+        expect($result)->not->toHaveKey('type');
+        expect(MapperExceptions::hasExceptions())->toBeTrue();
+
+        MapperExceptions::clearExceptions();
+    });
+
+    // ── additional required / not_required edge cases ──────────────────
+
+    it('passes empty array through when required', function(): void {
+        MapperExceptions::reset();
+
+        $template = [
+            'tags' => '{{ item.tags | required }}',
+        ];
+
+        // Empty array is not null and not a string → should pass through
+        $sources = ['item' => ['tags' => []]];
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+        expect($result['tags'])->toBe([]);
+        expect(MapperExceptions::hasExceptions())->toBeFalse();
+    });
+
+    it('passes value through with not_required when value is present', function(): void {
+        MapperExceptions::reset();
+
+        $template = [
+            'name' => '{{ user.name | not_required | string | upper }}',
+        ];
+
+        $sources = ['user' => ['name' => 'Alice']];
+        $result = DataMapper::source($sources)->template($template)->map()->getTarget();
+
+        expect($result['name'])->toBe('ALICE');
+        expect(MapperExceptions::hasExceptions())->toBeFalse();
+    });
+
+    // ── wildcard mapping with required / not_required ──────────────────
+    // Note: These tests use MappingFacade::mapFromTemplate() directly because
+    // the FluentDataMapper only routes through the template engine for
+    // template-based wildcard mappings ('key.*' => [...]) not for simple
+    // value wildcards ('*' => 'expression').
+
+    it('validates each wildcard element with required', function(): void {
+        MapperExceptions::reset();
+
+        $template = [
+            'ids' => [
+                '*' => '{{ items.* | required | integer }}',
+            ],
+        ];
+
+        $sources = ['items' => [10, 20, 30]];
+        $result = MappingFacade::mapFromTemplate(
+            $template,
+            $sources,
+            false,
+        );
+
+        expect($result['ids'])->toBe([10, 20, 30]);
+        expect(MapperExceptions::hasExceptions())->toBeFalse();
+    });
+
+    it('collects exceptions for null elements in wildcard with required', function(): void {
+        MapperExceptions::reset();
+
+        $template = [
+            'ids' => [
+                '*' => '{{ items.* | required | integer }}',
+            ],
+        ];
+
+        $sources = ['items' => [10, null, 30]];
+        $result = MappingFacade::mapFromTemplate(
+            $template,
+            $sources,
+            false,
+        );
+
+        expect($result['ids'])->toHaveCount(3);
+        expect(MapperExceptions::hasExceptions())->toBeTrue();
+
+        MapperExceptions::clearExceptions();
+    });
+
+    it('skips null elements silently in wildcard with not_required', function(): void {
+        MapperExceptions::reset();
+
+        $template = [
+            'ids' => [
+                '*' => '{{ items.* | not_required | integer }}',
+            ],
+        ];
+
+        $sources = ['items' => [10, null, 30]];
+        MappingFacade::mapFromTemplate(
+            $template,
+            $sources,
+            false,
+        );
+
+        expect(MapperExceptions::hasExceptions())->toBeFalse();
+    });
+
+    it('validates wildcard elements with in filter and required', function(): void {
+        MapperExceptions::reset();
+
+        $template = [
+            'types' => [
+                '*' => '{{ items.* | string | upper | in:[VEHICLE,ORDER,PROJECT] | required }}',
+            ],
+        ];
+
+        $sources = ['items' => ['vehicle', 'order', 'project']];
+        $result = MappingFacade::mapFromTemplate(
+            $template,
+            $sources,
+            false,
+        );
+
+        expect($result['types'])->toBe(['VEHICLE', 'ORDER', 'PROJECT']);
+        expect(MapperExceptions::hasExceptions())->toBeFalse();
+    });
+
+    it('collects exception for invalid wildcard element with in filter', function(): void {
+        MapperExceptions::reset();
+
+        $template = [
+            'types' => [
+                '*' => '{{ items.* | string | upper | in:[VEHICLE,ORDER] }}',
+            ],
+        ];
+
+        $sources = ['items' => ['vehicle', 'INVALID', 'order']];
+        MappingFacade::mapFromTemplate(
+            $template,
+            $sources,
+            false,
+        );
+
+        expect(MapperExceptions::hasExceptions())->toBeTrue();
+        expect(MapperExceptions::getExceptionCount())->toBe(1);
+
+        MapperExceptions::clearExceptions();
+    });
+
+    it('allows mixed null values in wildcard with in filter and not_required', function(): void {
+        MapperExceptions::reset();
+
+        $template = [
+            'types' => [
+                '*' => '{{ items.* | string | upper | in:[VEHICLE,ORDER] | not_required }}',
+            ],
+        ];
+
+        $sources = ['items' => ['vehicle', '', null, 'order']];
+        MappingFacade::mapFromTemplate(
+            $template,
+            $sources,
+            false,
+        );
+
+        expect(MapperExceptions::hasExceptions())->toBeFalse();
     });
 });

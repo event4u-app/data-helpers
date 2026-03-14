@@ -67,7 +67,7 @@ $emails = $accessor->get('departments.*.users.*.email');
 - **Type-Safe** - PHPStan Level 9 compliant with 4700+ tests
 <!-- BENCHMARK_README_FAST_START -->
 
-- **Fast** - SimpleDto with #[UltraFast] is up to 12.1x faster than Other Serializer
+- **Fast** - SimpleDto with #[UltraFast] is up to 12.5x faster than Other Serializer
 <!-- BENCHMARK_README_FAST_END -->
 - **Zero Dependencies** - No required dependencies, optional framework integrations
 - **No Framework Lock-In** - Use framework features without being tied to a framework
@@ -713,10 +713,10 @@ All operations are highly optimized:
 
 <!-- BENCHMARK_README_PERFORMANCE_START -->
 
-- Simple access: ~0.1μs
-- Nested access: ~0.5μs
+- Simple access: ~0.0μs
+- Nested access: ~0.4μs
 - Wildcards: ~1μs
-- **SimpleDto #[UltraFast] is up to 12.1x faster** than Other Serializer
+- **SimpleDto #[UltraFast] is up to 12.5x faster** than Other Serializer
 <!-- BENCHMARK_README_PERFORMANCE_END -->
 
 📖 **[Performance Benchmarks](https://event4u-app.github.io/data-helpers/performance/benchmarks/)** • [Optimization Tips](https://event4u-app.github.io/data-helpers/performance/optimization/)
