@@ -22,22 +22,22 @@ LiteDto is an **ultra-fast, minimalistic Data Transfer Object (Dto)** library fo
 
 | Library | Performance | Features |
 |---------|-------------|----------|
-| **LiteDto** | **~3.2μs** | Essential features, high performance |
-| SimpleDto #[UltraFast] | ~5.7μs | Fast mode with limited features |
-| SimpleDto Normal | ~6.3μs | Full features with validation |
+| **LiteDto** | **~3.7μs** | Essential features, high performance |
+| SimpleDto #[UltraFast] | ~4.7μs | Fast mode with limited features |
+| SimpleDto Normal | ~5.7μs | Full features with validation |
 
-**LiteDto is ~1.9x faster than SimpleDto Normal** while providing essential Dto features.
+**LiteDto is ~1.5x faster than SimpleDto Normal** while providing essential Dto features.
 
 ### UltraFast Mode
 
 | Library | Performance | Features |
 |---------|-------------|----------|
-| Plain PHP | ~0.111μs | No features, manual work |
-| Other Dtos | ~3.31μs | Minimal features, maximum speed |
-| **LiteDto #[UltraFast]** | **~2.6μs** | Minimal overhead, maximum speed |
-| SimpleDto #[UltraFast] | ~5.7μs | Fast mode with limited features |
+| Plain PHP | ~0.080μs | No features, manual work |
+| Other Dtos | ~2.69μs | Minimal features, maximum speed |
+| **LiteDto #[UltraFast]** | **~2.4μs** | Minimal overhead, maximum speed |
+| SimpleDto #[UltraFast] | ~4.7μs | Fast mode with limited features |
 
-**LiteDto #[UltraFast] is ~2x faster than SimpleDto Normal** and only **~23.7x slower than Plain PHP**!
+**LiteDto #[UltraFast] is ~2x faster than SimpleDto Normal** and only **~29.4x slower than Plain PHP**!
 <!-- LITEDTO_PERFORMANCE_END -->
 
 ## Quick Example
