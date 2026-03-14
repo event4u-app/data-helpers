@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace event4u\DataHelpers\DataMapper\Template;
 
 use event4u\DataHelpers\DataMapper\Context\PairContext;
+use event4u\DataHelpers\DataMapper\MapperExceptions;
 use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
 use event4u\DataHelpers\DataMapper\Pipeline\FilterRegistry;
 use InvalidArgumentException;
@@ -61,18 +62,96 @@ final class FilterEngine
         // The cache key includes the mode, so this is actually safe
     }
 
+    /** @var list<string> Meta-flag keywords that are extracted before filter execution. */
+    private const META_FLAGS = ['required', 'not_required', 'optional'];
+
     /**
      * Apply transformers to a value using filter syntax.
+     *
+     * Meta-flags (required, not_required, optional) are extracted from the filter chain
+     * before execution and handled independently of their position.
      *
      * @param array<int, string> $filters Filter aliases to apply
      */
     public static function apply(mixed $value, array $filters): mixed
     {
+        // Extract meta-flags from the filter chain (position-independent)
+        [$filters, $isRequired] = self::extractMetaFlags($filters);
+
+        // Handle required/not_required for null or empty values
+        if (null !== $isRequired) {
+            $isEmpty = null === $value || (is_string($value) && '' === trim($value));
+
+            if ($isEmpty) {
+                if ($isRequired) {
+                    // required: value must not be null/empty
+                    $exception = new InvalidArgumentException(
+                        'Value is required but is null or empty.'
+                    );
+                    MapperExceptions::handleException($exception);
+                }
+
+                // not_required/optional OR after required exception: return null, skip remaining filters
+                return null;
+            }
+        }
+
         foreach ($filters as $filter) {
             $value = self::applyFilter($value, $filter);
         }
 
         return $value;
+    }
+
+    /**
+     * Check if a filter chain contains a 'required' meta-flag.
+     *
+     * Used by TemplateExpressionProcessor to decide whether to call FilterEngine
+     * even when the value is null.
+     *
+     * @param array<int, string> $filters Filter aliases
+     */
+    public static function hasRequiredFlag(array $filters): bool
+    {
+        foreach ($filters as $filter) {
+            $filterName = strtolower(trim($filter));
+            if ('required' === $filterName) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Extract meta-flags from the filter chain.
+     *
+     * Returns the cleaned filter list and the resolved required state:
+     * - null: no meta-flag present (default behavior)
+     * - true: 'required' was found
+     * - false: 'not_required' or 'optional' was found
+     *
+     * @param array<int, string> $filters
+     * @return array{0: array<int, string>, 1: bool|null}
+     */
+    private static function extractMetaFlags(array $filters): array
+    {
+        $isRequired = null;
+        $cleaned = [];
+
+        foreach ($filters as $filter) {
+            $filterName = strtolower(trim($filter));
+
+            if (in_array($filterName, self::META_FLAGS, true)) {
+                $isRequired = 'required' === $filterName;
+
+                continue;
+            }
+
+            $cleaned[] = $filter;
+        }
+
+        return [$cleaned, $isRequired];
     }
 
     /** Apply a single transformer using its alias. */
