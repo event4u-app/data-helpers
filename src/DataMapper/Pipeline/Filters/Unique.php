@@ -19,7 +19,8 @@ final class Unique implements FilterInterface
 {
     public function transform(mixed $value, HookContext $context): mixed
     {
-        return is_array($value) ? array_unique($value) : $value;
+        /** @var array<array-key, mixed> $value */
+        return is_array($value) ? array_unique($value) : $value; // @phpstan-ignore argument.type
     }
 
     public function getHook(): string

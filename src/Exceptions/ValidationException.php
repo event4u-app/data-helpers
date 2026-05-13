@@ -76,7 +76,7 @@ final class ValidationException extends RuntimeException
     /** Check if a specific field has errors. */
     public function hasError(string $field): bool
     {
-        return isset($this->errors[$field]) && count($this->errors[$field]) > 0;
+        return isset($this->errors[$field]) && [] !== $this->errors[$field];
     }
 
     /**

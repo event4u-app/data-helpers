@@ -36,7 +36,10 @@ final readonly class Join implements FilterInterface
         $args = $context->extra();
         $separator = isset($args[0]) && is_string($args[0]) ? $args[0] : $this->separator;
 
-        return implode($separator, $value);
+        /** @var array<int|string, string> $stringValues */
+        $stringValues = array_map(static fn(mixed $v): string => (string)$v, $value);
+
+        return implode($separator, $stringValues);
     }
 
     public function getHook(): string

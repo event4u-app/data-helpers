@@ -218,7 +218,6 @@ describe('DataMapper skipNull wildcard bug fix', function(): void {
     it('handles nested template-based wildcard mappings', function(): void {
         // TODO: Nested template-based wildcard mappings are not yet fully supported
         // This test is skipped for now
-        $this->markTestSkipped('Nested template-based wildcard mappings are not yet fully supported');
     })->skip('Nested template-based wildcard mappings are not yet fully supported');
 
     it('handles nested template-based wildcard mappings - FUTURE', function(): void {
