@@ -117,6 +117,7 @@ final class ConfigLoader
             $merged[$key] = $value;
         }
 
+        /** @var array<string, mixed> $merged */
         return $merged;
     }
 

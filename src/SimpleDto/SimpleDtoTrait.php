@@ -1160,12 +1160,10 @@ trait SimpleDtoTrait
     public function clearComputedCache(?string $property = null): static
     {
         // Clear local computed cache (from SimpleDtoComputedTrait)
-        if (isset($this->computedCache)) {
-            if (null === $property) {
-                $this->computedCache = [];
-            } else {
-                unset($this->computedCache[$property]);
-            }
+        if (null === $property) {
+            $this->computedCache = [];
+        } else {
+            unset($this->computedCache[$property]);
         }
 
         // Clear SimpleEngine's computed values cache

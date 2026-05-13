@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /** @noinspection PhpExpressionResultUnusedInspection */
 
 use event4u\DataHelpers\SimpleDto;

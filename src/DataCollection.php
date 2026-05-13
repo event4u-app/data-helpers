@@ -907,11 +907,12 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
      */
     public function unflatten(): static
     {
+        /** @var array<string, mixed> $result */
         $result = [];
 
         foreach ($this->items as $path => $value) {
             if (!is_string($path) || '' === $path) {
-                $result[$path] = $value;
+                $result[$path] = $value; // @phpstan-ignore offsetAccess.nonOffsetAccessible
                 continue;
             }
 
@@ -920,10 +921,11 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
             // If the path contains a wildcard we cannot reliably undot it –
             // fall back to keeping the original key.
             if ([] === $segments || DotPathHelper::containsWildcard($path)) {
-                $result[$path] = $value;
+                $result[$path] = $value; // @phpstan-ignore offsetAccess.nonOffsetAccessible
                 continue;
             }
 
+            /** @var array<string, mixed> $cursor */
             $cursor = &$result;
 
             foreach ($segments as $segment) {
@@ -939,7 +941,7 @@ class DataCollection implements IteratorAggregate, ArrayAccess, Countable, JsonS
         }
 
         /** @var static<TValue> $collection */
-        $collection = new static($result); // @phpstan-ignore return.type
+        $collection = new static($result); // @phpstan-ignore return.type, argument.type
 
         return $collection;
     }

@@ -113,7 +113,7 @@ describe('DataAccessor Transformations', function(): void {
             $accessor = new DataAccessor([1, 2, 3]);
             $result = $accessor->reduce(
                 /** @param mixed $carry @param mixed $item */
-                fn($carry, $item): int => ((int)$carry ?: 0) + (int)$item
+                fn($carry, $item): int => ((int)$carry) + (int)$item
             );
             expect($result)->toBe(6);
         });

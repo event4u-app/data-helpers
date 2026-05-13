@@ -794,9 +794,11 @@ class DataMapperQuery
                     // Check if it's a single nested condition or array of conditions
                     if (isset($value[0]) && is_array($value[0])) {
                         // Array of conditions
+                        /** @var array<int, array<string, mixed>> $conditionsArray */
+                        $conditionsArray = $value;
                         $result[$key] = array_map(
                             fn(array $cond): array => $this->buildWhereConditions($cond, $sourceKey),
-                            $value
+                            $conditionsArray
                         );
                     } else {
                         // Single nested condition

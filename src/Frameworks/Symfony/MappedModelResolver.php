@@ -96,7 +96,6 @@ class MappedModelResolver implements ValueResolverInterface
         $data = $this->getRequestData($request);
 
         // Create and fill the model
-        /** @var MappedDataModel $model */
         $model = new $type();
         $model->fill($data);
 

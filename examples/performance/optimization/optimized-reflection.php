@@ -62,7 +62,8 @@ foreach (array_keys($properties) as $name) {
             'wrapKey',
             'objectVarsCache',
             'castedProperties',
-        ]
+        ],
+        true
     )) {
         echo sprintf('  - %s%s', $name, PHP_EOL);
     }

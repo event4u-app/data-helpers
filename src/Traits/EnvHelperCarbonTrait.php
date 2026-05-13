@@ -21,7 +21,6 @@ if (class_exists('Carbon\Carbon')) {
         /**
          * Get an environment variable as Carbon instance.
          *
-         * @return \Carbon\Carbon
          * @throws InvalidArgumentException If the value cannot be parsed as a date/time
          */
         public static function carbon(string $key, mixed $default = null): Carbon

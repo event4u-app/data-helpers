@@ -232,7 +232,7 @@ class GroupByOperator
                 }
 
                 $function = is_string($aggConfig[0]) ? strtoupper($aggConfig[0]) : '';
-                $fieldPath = $aggConfig[1] ?? null;
+                $fieldPath = isset($aggConfig[1]) && is_string($aggConfig[1]) ? $aggConfig[1] : null;
                 $separator = $aggConfig[2] ?? null;
 
                 $aggregatedValue = self::aggregate(
