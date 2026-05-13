@@ -972,6 +972,62 @@ describe('NotInList filter (| not_in)', function(): void {
 
         expect(MapperExceptions::hasExceptions())->toBeFalse();
     });
+
+    // ── null coalescing with path fallback ─────────────────────────────
+
+    it('resolves right side of ?? as source path', function(): void {
+        $template = [
+            'item_number' => '{{ item.inventoryNumber ?? item.externalId }}',
+        ];
+
+        $sources = ['item' => ['inventoryNumber' => null, 'externalId' => 'EXT-123']];
+        $result = MappingFacade::mapFromTemplate($template, $sources, false);
+
+        expect($result['item_number'])->toBe('EXT-123');
+    });
+
+    it('returns null when both sides of ?? are null paths', function(): void {
+        $template = [
+            'item_number' => '{{ item.inventoryNumber ?? item.externalId }}',
+        ];
+
+        $sources = ['item' => ['inventoryNumber' => null, 'externalId' => null]];
+        $result = MappingFacade::mapFromTemplate($template, $sources, false);
+
+        expect($result['item_number'])->toBeNull();
+    });
+
+    it('resolves ?? path fallback in wildcard mapping', function(): void {
+        $template = [
+            'items' => [
+                '*' => '{{ equipment.*.inventoryNumber ?? equipment.*.externalId }}',
+            ],
+        ];
+
+        $sources = [
+            'equipment' => [
+                ['inventoryNumber' => 'INV-001', 'externalId' => 'EXT-001'],
+                ['inventoryNumber' => null, 'externalId' => 'EXT-002'],
+                ['inventoryNumber' => null, 'externalId' => null],
+            ],
+        ];
+        $result = MappingFacade::mapFromTemplate($template, $sources, false);
+
+        expect($result['items'][0])->toBe('INV-001');
+        expect($result['items'][1])->toBe('EXT-002');
+        expect($result['items'][2])->toBeNull();
+    });
+
+    it('still uses literal fallback with ?? when quoted', function(): void {
+        $template = [
+            'name' => '{{ item.name ?? "UNKNOWN" }}',
+        ];
+
+        $sources = ['item' => ['name' => null]];
+        $result = MappingFacade::mapFromTemplate($template, $sources, false);
+
+        expect($result['name'])->toBe('UNKNOWN');
+    });
 });
 
 describe('Multi-Expression String Interpolation', function(): void {

@@ -188,6 +188,7 @@ final class ExpressionEvaluator
         if (is_string($left)) {
             $left = self::resolvePlaceholders($left, $parentheses, $sources, $aliases);
         }
+        $originalRight = $right;
         $right = self::resolvePlaceholders($right, $parentheses, $sources, $aliases);
 
         // Resolve left value
@@ -195,6 +196,13 @@ final class ExpressionEvaluator
             $leftValue = self::resolveValue($left, $sources, $aliases);
         } else {
             $leftValue = $left;
+        }
+
+        // Resolve right value as source path when it was not a quoted literal
+        // and resolvePlaceholders did not already resolve it (e.g., parenthesized expressions)
+        $rightIsPath = $parsed['rightIsPath'] ?? false;
+        if ($rightIsPath && is_string($right) && $right === $originalRight) {
+            $right = self::resolveSourcePath($right, $sources);
         }
 
         // Apply null coalescing
