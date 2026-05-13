@@ -740,6 +740,11 @@ class MappingFacade
                 continue;
             }
 
+            // Multi-expression strings (e.g., '{{ a | trim }} {{ b | ucfirst }}') need full evaluation
+            if (str_contains($value, '{{')) {
+                return false;
+            }
+
             // Non-template strings are treated as static constants and are always allowed
         }
 
@@ -880,6 +885,12 @@ class MappingFacade
                 // Static value: use as-is
                 $value = $sourcePath;
                 $actualSourcePath = null;
+
+                // Multi-expression string interpolation: evaluate {{ }} blocks individually
+                // Example: '{{ a.b | trim }} {{ c.d | ucfirst }}' → resolved values joined
+                if (is_string($value) && str_contains($value, '{{') && str_contains($value, '}}')) {
+                    $value = self::evaluateMultiExpressionValue($value, $accessor);
+                }
             } else {
                 // Dynamic path: get value from source
                 $actualSourcePath = (string)$sourcePath;
@@ -1711,5 +1722,40 @@ class MappingFacade
         // If no rule matches, return the word as-is
         $cache[$word] = $word;
         return $word;
+    }
+
+    /**
+     * Evaluate a string containing multiple {{ }} expression blocks.
+     *
+     * Each {{ expression | filters }} block is resolved individually against the source data.
+     * Example: '{{ person.firstName | trim | ucfirst }} {{ person.lastName | trim | ucfirst }}'
+     * → 'John Doe'
+     */
+    private static function evaluateMultiExpressionValue(string $value, DataAccessor $accessor): string
+    {
+        $result = preg_replace_callback(
+            '/\{\{\s*([^}]+?)\s*\}\}/',
+            static function(array $matches) use ($accessor): string {
+                $expression = trim($matches[1]);
+                $parsed = TemplateExpressionProcessor::parse($expression);
+
+                $resolved = $accessor->get($parsed['path']);
+
+                // Apply default if value is null
+                if (null === $resolved && null !== $parsed['default']) {
+                    $resolved = $parsed['default'];
+                }
+
+                // Apply filters
+                if ($parsed['hasFilters']) {
+                    $resolved = TemplateExpressionProcessor::applyFilters($resolved, $parsed['filters']);
+                }
+
+                return (string)($resolved ?? '');
+            },
+            $value,
+        );
+
+        return $result ?? $value;
     }
 }

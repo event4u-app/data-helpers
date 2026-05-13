@@ -973,3 +973,97 @@ describe('NotInList filter (| not_in)', function(): void {
         expect(MapperExceptions::hasExceptions())->toBeFalse();
     });
 });
+
+describe('Multi-Expression String Interpolation', function(): void {
+    it('evaluates two expressions with filters in one value', function(): void {
+        $source = ['person' => ['firstName' => ' john ', 'lastName' => ' doe ']];
+        $template = [
+            'name' => '{{ person.firstName | trim | ucfirst }} {{ person.lastName | trim | ucfirst }}',
+        ];
+
+        $result = DataMapper::source($source)->template($template)->map()->getTarget();
+
+        expect($result['name'])->toBe('John Doe');
+    });
+
+    it('evaluates expressions mixed with literal text', function(): void {
+        $source = ['user' => ['name' => 'Alice']];
+        $template = [
+            'greeting' => 'Hello {{ user.name }}, welcome!',
+        ];
+
+        $result = DataMapper::source($source)->template($template)->map()->getTarget();
+
+        expect($result['greeting'])->toBe('Hello Alice, welcome!');
+    });
+
+    it('evaluates multiple expressions with separator', function(): void {
+        $source = ['person' => ['firstName' => ' john ', 'lastName' => ' doe ']];
+        $template = [
+            'info' => '{{ person.firstName | trim }} - {{ person.lastName | trim }}',
+        ];
+
+        $result = DataMapper::source($source)->template($template)->map()->getTarget();
+
+        expect($result['info'])->toBe('john - doe');
+    });
+
+    it('evaluates three expressions in one value', function(): void {
+        $source = [
+            'user' => ['first' => 'john', 'middle' => 'james', 'last' => 'doe'],
+        ];
+        $template = [
+            'full' => '{{ user.first | ucfirst }} {{ user.middle | ucfirst }} {{ user.last | ucfirst }}',
+        ];
+
+        $result = DataMapper::source($source)->template($template)->map()->getTarget();
+
+        expect($result['full'])->toBe('John James Doe');
+    });
+
+    it('handles null values in multi-expression gracefully', function(): void {
+        $source = ['person' => ['firstName' => 'Alice', 'lastName' => null]];
+        $template = [
+            'name' => '{{ person.firstName }} {{ person.lastName }}',
+        ];
+
+        $result = DataMapper::source($source)->template($template)->map()->getTarget();
+
+        expect($result['name'])->toBe('Alice ');
+    });
+
+    it('does not break single expressions with filters', function(): void {
+        $source = ['user' => ['email' => '  ALICE@EXAMPLE.COM  ']];
+        $template = [
+            'email' => '{{ user.email | trim | lower }}',
+        ];
+
+        $result = DataMapper::source($source)->template($template)->map()->getTarget();
+
+        expect($result['email'])->toBe('alice@example.com');
+    });
+
+    it('evaluates multi-expression with default values', function(): void {
+        $source = ['user' => ['firstName' => 'Alice']];
+        $template = [
+            'name' => '{{ user.firstName }} {{ user.lastName ?? "Unknown" }}',
+        ];
+
+        $result = DataMapper::source($source)->template($template)->map()->getTarget();
+
+        expect($result['name'])->toBe('Alice Unknown');
+    });
+
+    it('works in nested template structure', function(): void {
+        $source = ['person' => ['firstName' => ' john ', 'lastName' => ' doe ']];
+        $template = [
+            'profile' => [
+                'displayName' => '{{ person.firstName | trim | ucfirst }} {{ person.lastName | trim | ucfirst }}',
+            ],
+        ];
+
+        $result = DataMapper::source($source)->template($template)->map()->getTarget();
+
+        expect($result['profile']['displayName'])->toBe('John Doe');
+    });
+});

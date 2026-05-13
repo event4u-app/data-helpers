@@ -62,11 +62,22 @@ final class TemplateCompilationCache
         'size' => 0,
     ];
 
-    /** Regular expression pattern for matching {{ }} expressions */
+    /** Regular expression pattern for matching a SINGLE {{ }} expression */
     private const TEMPLATE_PATTERN = '/^\{\{\s*(.+?)\s*\}\}$/';
 
     /** Maximum cache size before cleanup (prevent memory leaks) */
     private const MAX_CACHE_SIZE = 500;
+
+    /**
+     * Check if a string contains multiple {{ }} expression blocks.
+     *
+     * Values like '{{ a | trim }} {{ b | ucfirst }}' are NOT single template expressions.
+     * They must be handled as multi-expression strings (string interpolation).
+     */
+    private static function isMultiExpression(string $value): bool
+    {
+        return substr_count($value, '{{') > 1;
+    }
 
     /**
      * Check if a string is a template expression (cached).
@@ -87,6 +98,14 @@ final class TemplateCompilationCache
 
         // Fast path: Check for {{ and }} first before using regex
         if (!str_contains($value, '{{') || !str_contains($value, '}}')) {
+            self::$isTemplateCache[$value] = false;
+            self::updateSize();
+
+            return false;
+        }
+
+        // Multiple {{ }} blocks are NOT a single template expression
+        if (self::isMultiExpression($value)) {
             self::$isTemplateCache[$value] = false;
             self::updateSize();
 
@@ -125,6 +144,14 @@ final class TemplateCompilationCache
 
         // Fast path: Check for {{ and }} first
         if (!str_contains($template, '{{') || !str_contains($template, '}}')) {
+            self::$extractedPathCache[$template] = $template;
+            self::updateSize();
+
+            return $template;
+        }
+
+        // Multiple {{ }} blocks are NOT a single template expression
+        if (self::isMultiExpression($template)) {
             self::$extractedPathCache[$template] = $template;
             self::updateSize();
 
@@ -178,6 +205,15 @@ final class TemplateCompilationCache
 
         // Fast path: Check for {{ and }} first
         if (!str_contains($template, '{{') || !str_contains($template, '}}')) {
+            self::$isTemplateCache[$template] = false;
+            self::$extractedPathCache[$template] = $template;
+            self::updateSize();
+
+            return null;
+        }
+
+        // Multiple {{ }} blocks are NOT a single template expression
+        if (self::isMultiExpression($template)) {
             self::$isTemplateCache[$template] = false;
             self::$extractedPathCache[$template] = $template;
             self::updateSize();
