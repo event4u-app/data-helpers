@@ -86,6 +86,7 @@ final class ExpressionParser
                     'filters' => $filters,
                     'left' => $parsed['left'] ?? '',
                     'right' => $parsed['right'] ?? null,
+                    'rightIsPath' => $parsed['rightIsPath'] ?? false,
                     'parentheses' => $parentheses,
                 ];
                 $cache[$value] = $result;
@@ -346,6 +347,14 @@ final class ExpressionParser
         }
 
         [$left, $right] = $parts;
+        $trimmedRight = trim($right);
+
+        // Detect if right side is an unquoted path (not a string literal, number, or keyword)
+        $rightIsPath = '' !== $trimmedRight
+            && !str_starts_with($trimmedRight, '"')
+            && !str_starts_with($trimmedRight, "'")
+            && !is_numeric($trimmedRight)
+            && !in_array(strtolower($trimmedRight), ['true', 'false', 'null'], true);
 
         return [
             'type' => 'null_coalescing',
@@ -353,7 +362,8 @@ final class ExpressionParser
             'default' => null, // Not used for null coalescing expressions
             'filters' => [], // Not used for null coalescing expressions
             'left' => trim($left),
-            'right' => self::parseValue(trim($right)),
+            'right' => self::parseValue($trimmedRight),
+            'rightIsPath' => $rightIsPath,
         ];
     }
 
