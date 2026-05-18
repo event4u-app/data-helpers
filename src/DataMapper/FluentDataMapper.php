@@ -860,7 +860,7 @@ final class FluentDataMapper
                 $namedSources = [];
                 foreach ($sourceNames as $sourceName) {
                     // Check if source is nested (e.g., 'products' in ['products' => [...]])
-                    if (is_array($this->source) && isset($this->source[$sourceName])) {
+                    if (is_array($this->source) && array_key_exists($sourceName, $this->source)) {
                         $namedSources[$sourceName] = $this->source[$sourceName];
                     } else {
                         // Use entire source with a default name
