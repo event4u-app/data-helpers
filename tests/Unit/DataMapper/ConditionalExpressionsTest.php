@@ -647,4 +647,66 @@ describe('DataMapper → Conditional Expressions', function(): void {
 
         expect($result)->toBe(['is_admin' => 1]);
     });
+
+    test('it preserves null source values when template has conditional expression', function(): void {
+        $template = [
+            'a' => '{{ id }}',
+            'b' => '{{ nullable_field }}',
+            'c' => '{{ flag == true ? 1 : 0 }}',
+        ];
+        $source = ['id' => 1, 'nullable_field' => null, 'flag' => true];
+
+        $result = DataMapper::template($template)->source($source)->skipNull(false)->map()->getTarget();
+
+        expect($result)->toBe(['a' => 1, 'b' => null, 'c' => 1]);
+    });
+
+    test('it does not replace null values with entire source array', function(): void {
+        $source = [
+            'id' => 42,
+            'start_date' => null,
+            'end_date' => null,
+            'status' => 'active',
+            'amount' => 1500,
+        ];
+
+        $template = [
+            'project_id' => '{{ id }}',
+            'start' => '{{ start_date }}',
+            'end' => '{{ end_date }}',
+            'total' => '{{ amount }}',
+            'is_active' => '{{ status == "active" ? 1 : 0 }}',
+        ];
+
+        $result = DataMapper::template($template)->source($source)->skipNull(false)->map()->getTarget();
+
+        expect($result['project_id'])->toBe(42);
+        expect($result['start'])->toBeNull();
+        expect($result['end'])->toBeNull();
+        expect($result['total'])->toBe(1500);
+        expect($result['is_active'])->toBe(1);
+    });
+
+    test('it handles multiple null values with null coalescing in conditional template', function(): void {
+        $source = [
+            'name' => 'Test',
+            'optional_a' => null,
+            'optional_b' => null,
+            'done' => false,
+        ];
+
+        $template = [
+            'title' => '{{ name }}',
+            'field_a' => '{{ optional_a ?? "" }}',
+            'field_b' => '{{ optional_b }}',
+            'completed' => '{{ done == true ? "yes" : "no" }}',
+        ];
+
+        $result = DataMapper::template($template)->source($source)->skipNull(false)->map()->getTarget();
+
+        expect($result['title'])->toBe('Test');
+        expect($result['field_a'])->toBe('');
+        expect($result['field_b'])->toBeNull();
+        expect($result['completed'])->toBe('no');
+    });
 });
