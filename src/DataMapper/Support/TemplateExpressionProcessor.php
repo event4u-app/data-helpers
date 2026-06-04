@@ -156,7 +156,9 @@ final class TemplateExpressionProcessor
         // Apply filters if present
         // When value is null, still call FilterEngine if 'required' flag is present
         if ($parsed['hasFilters'] && (null !== $value || FilterEngine::hasRequiredFlag($parsed['filters']))) {
-            return FilterEngine::apply($value, $parsed['filters']);
+            // Expose the single source under the empty key so filter arguments
+            // can reference sibling paths (e.g. {{ minutes | divide:divisor }})
+            return FilterEngine::apply($value, $parsed['filters'], ['' => $source]);
         }
 
         return $value;
@@ -189,15 +191,16 @@ final class TemplateExpressionProcessor
      *
      * @param mixed $value Value to filter
      * @param array<string> $filters Filter names
+     * @param array<string, mixed> $sources Named data sources for source-path argument resolution
      * @return mixed Filtered value
      */
-    public static function applyFilters(mixed $value, array $filters): mixed
+    public static function applyFilters(mixed $value, array $filters, array $sources = []): mixed
     {
         if ([] === $filters) {
             return $value;
         }
 
-        return FilterEngine::apply($value, $filters);
+        return FilterEngine::apply($value, $filters, $sources);
     }
 
     /**

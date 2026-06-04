@@ -64,7 +64,7 @@ final class ExpressionEvaluator
 
             // Apply filters
             if ([] !== $parsed['filters']) {
-                return TemplateExpressionProcessor::applyFilters($result, $parsed['filters']);
+                return TemplateExpressionProcessor::applyFilters($result, $parsed['filters'], $sources);
             }
 
             return $result;
@@ -86,12 +86,16 @@ final class ExpressionEvaluator
                 if (is_array($resolved) && str_contains($parsed['path'], '*')) {
                     $filtered = [];
                     foreach ($resolved as $key => $item) {
-                        $filtered[$key] = TemplateExpressionProcessor::applyFilters($item, $parsed['filters']);
+                        $filtered[$key] = TemplateExpressionProcessor::applyFilters(
+                            $item,
+                            $parsed['filters'],
+                            $sources
+                        );
                     }
                     return $filtered;
                 }
 
-                return TemplateExpressionProcessor::applyFilters($resolved, $parsed['filters']);
+                return TemplateExpressionProcessor::applyFilters($resolved, $parsed['filters'], $sources);
             }
 
             return $resolved;
@@ -138,9 +142,12 @@ final class ExpressionEvaluator
     /**
      * Resolve a source path like user.name.
      *
+     * Public so that FilterEngine can resolve filter arguments that reference
+     * a source path (see ResolvesSourceArguments).
+     *
      * @param array<string, mixed> $sources
      */
-    private static function resolveSourcePath(string $path, array $sources): mixed
+    public static function resolveSourcePath(string $path, array $sources): mixed
     {
         // Special case: if sources has a single entry with empty key, use it as the direct source
         // This allows {{ customer_name }} instead of requiring {{ source.customer_name }}
@@ -210,7 +217,7 @@ final class ExpressionEvaluator
 
         // Apply filters if present
         if ([] !== $filters) {
-            return FilterEngine::apply($result, $filters);
+            return FilterEngine::apply($result, $filters, $sources);
         }
 
         return $result;
@@ -250,7 +257,7 @@ final class ExpressionEvaluator
 
         // Apply filters if present
         if ([] !== $filters) {
-            return FilterEngine::apply($result, $filters);
+            return FilterEngine::apply($result, $filters, $sources);
         }
 
         return $result;
@@ -292,7 +299,7 @@ final class ExpressionEvaluator
 
         // Apply filters if present
         if ([] !== $filters) {
-            return FilterEngine::apply($result, $filters);
+            return FilterEngine::apply($result, $filters, $sources);
         }
 
         return $result;
@@ -446,7 +453,7 @@ final class ExpressionEvaluator
             if (1 < count($parts)) {
                 $path = trim(array_shift($parts));
                 $resolved = self::resolveSourcePath($path, $sources);
-                return FilterEngine::apply($resolved, $parts);
+                return FilterEngine::apply($resolved, $parts, $sources);
             }
         }
 
@@ -668,7 +675,7 @@ final class ExpressionEvaluator
         /** @var array<int, string> $filters */
         $filters = $parsed['filters'] ?? [];
         if ([] !== $filters) {
-            return TemplateExpressionProcessor::applyFilters($result, $filters);
+            return TemplateExpressionProcessor::applyFilters($result, $filters, $sources);
         }
 
         return $result;
@@ -705,12 +712,12 @@ final class ExpressionEvaluator
             if (is_array($resolved) && str_contains($path, '*')) {
                 $filtered = [];
                 foreach ($resolved as $key => $item) {
-                    $filtered[$key] = TemplateExpressionProcessor::applyFilters($item, $filters);
+                    $filtered[$key] = TemplateExpressionProcessor::applyFilters($item, $filters, $sources);
                 }
                 return $filtered;
             }
 
-            return TemplateExpressionProcessor::applyFilters($resolved, $filters);
+            return TemplateExpressionProcessor::applyFilters($resolved, $filters, $sources);
         }
 
         return $resolved;

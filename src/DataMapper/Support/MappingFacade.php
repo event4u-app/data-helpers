@@ -912,7 +912,7 @@ class MappingFacade
                 // This allows filters like 'default' to replace null values
                 // Filters can handle arrays (e.g., callback filters that process array values)
                 if ([] !== $filters) {
-                    $value = TemplateExpressionProcessor::applyFilters($value, $filters);
+                    $value = TemplateExpressionProcessor::applyFilters($value, $filters, ['' => $source]);
                 }
             }
 
@@ -944,7 +944,8 @@ class MappingFacade
                 if ([] !== $filters) {
                     $transformFn = (fn(mixed $itemValue): mixed => TemplateExpressionProcessor::applyFilters(
                         $itemValue,
-                        $filters
+                        $filters,
+                        ['' => $source]
                     ));
                 }
 
@@ -1748,7 +1749,11 @@ class MappingFacade
 
                 // Apply filters
                 if ($parsed['hasFilters']) {
-                    $resolved = TemplateExpressionProcessor::applyFilters($resolved, $parsed['filters']);
+                    $resolved = TemplateExpressionProcessor::applyFilters(
+                        $resolved,
+                        $parsed['filters'],
+                        ['' => $accessor->toArray()]
+                    );
                 }
 
                 return (string)($resolved ?? '');
