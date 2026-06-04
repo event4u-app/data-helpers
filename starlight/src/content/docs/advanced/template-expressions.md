@@ -211,6 +211,39 @@ Cast values to specific types:
 - **decimal**: Formats numbers with specified precision (default: 2), useful for prices and amounts
 - **json**: Encodes arrays/objects to JSON strings, skips existing strings to avoid double-encoding
 
+### Arithmetic Filters
+
+Apply a single arithmetic operation to a numeric value. The second operand can be a
+**fixed literal** or a **source path** that is resolved from the data before the filter runs.
+
+```php
+// multiply - Multiply by a factor (e.g. hours -> minutes)
+'{{ duration.hours | multiply:60 }}'   // 2 -> 120
+
+// divide - Divide by a divisor (e.g. minutes -> hours)
+'{{ duration.minutes | divide:60 }}'   // 90 -> 1.5
+
+// add - Add a number
+'{{ price.net | add:1 }}'              // 41 -> 42
+
+// subtract - Subtract a number
+'{{ price.gross | subtract:19 }}'      // 119 -> 100
+
+// The operand can also come from the source data:
+'{{ price.net | multiply:order.taxFactor }}'  // factor read from order.taxFactor
+'{{ total.amount | divide:order.installments }}'
+```
+
+**Arithmetic Details:**
+
+- Operate on numeric values only; non-numeric values are returned unchanged.
+- A missing or non-numeric operand returns the value unchanged.
+- `divide` returns the value unchanged on division by zero.
+- The operand resolves as a source path when it is **not** numeric and **not** a
+  `true` / `false` / `null` keyword; if the path does not resolve, the literal is kept.
+- A custom filter can opt into the same source-path argument resolution by
+  implementing `event4u\DataHelpers\DataMapper\Pipeline\ResolvesSourceArguments`.
+
 ### Date Filters
 
 ```php
