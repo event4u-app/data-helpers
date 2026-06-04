@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace event4u\DataHelpers\DataMapper\Pipeline;
 
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\Add;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\Between;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\Callback;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\CastToArray;
@@ -19,6 +20,7 @@ use event4u\DataHelpers\DataMapper\Pipeline\Filters\Count;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\DateFormat;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\DecodeHtmlEntities;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\DefaultValue;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\Divide;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\First;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\InList;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\Join;
@@ -26,10 +28,12 @@ use event4u\DataHelpers\DataMapper\Pipeline\Filters\JsonEncode;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\Keys;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\Last;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\LowercaseStrings;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\Multiply;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\NotInList;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\Replace;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\Reverse;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\Sort;
+use event4u\DataHelpers\DataMapper\Pipeline\Filters\Subtract;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\Sum;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\Timestamp;
 use event4u\DataHelpers\DataMapper\Pipeline\Filters\TrimStrings;
@@ -149,6 +153,12 @@ final class FilterRegistry
             Ucwords::class,
             DecodeHtmlEntities::class,
             Replace::class,
+
+            // Arithmetic transformers
+            Multiply::class,
+            Divide::class,
+            Add::class,
+            Subtract::class,
 
             // Array transformers
             Count::class,

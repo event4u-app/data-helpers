@@ -153,11 +153,13 @@ jobs:
               "pestphp/pest-plugin-laravel:^2.0" \
               --with-all-dependencies --no-interaction --quiet
           else
+            # Pin Pest to 3.x: the library's tests target Pest ^2.0|^3.0, while an
+            # unconstrained require would resolve to Pest 4 and break the suite.
             composer require --dev \
               illuminate/support:^${{ matrix.laravel }}.0 \
               illuminate/database:^${{ matrix.laravel }}.0 \
-              pestphp/pest \
-              pestphp/pest-plugin-laravel \
+              "pestphp/pest:^3.0" \
+              "pestphp/pest-plugin-laravel:^3.0" \
               --with-all-dependencies --no-interaction --quiet
           fi
 

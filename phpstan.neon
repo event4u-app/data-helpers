@@ -52,6 +52,11 @@ parameters:
         - '#^Cannot cast mixed to#'
         - '#^Method .* is unused.$#'
         - '#^Class Tests\\Unit\\Company.*Model.* was not found while trying to analyse it#'
+        # LiteDtoObjectTrait::toObject() uses method_exists() defensively so the trait
+        # works standalone; on LiteDto (which also uses the Eloquent/Doctrine traits)
+        # the methods always exist, so the check narrows to "always true".
+        - message: '#^Call to function method_exists\(\) with \$this\(event4u\\DataHelpers\\LiteDto\\LiteDto\) and .(toModel|toEntity). will always evaluate to true\.$#'
+          identifier: function.alreadyNarrowedType
         - message: '#Access to an undefined property PHPUnit\\Framework\\TestCase::\$.*#'
           paths:
               - examples/*

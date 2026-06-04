@@ -568,7 +568,7 @@ describe('Collection', function(): void {
 
         it('reduces empty collection returns initial', function(): void {
             $collection = DataCollection::make();
-            $result = $collection->reduce(fn($carry, $item) => $carry + $item, 42);
+            $result = $collection->reduce(fn($carry, $item): float|int|array => $carry + $item, 42);
 
             expect($result)->toBe(42);
         });

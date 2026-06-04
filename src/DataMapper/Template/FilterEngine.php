@@ -8,6 +8,7 @@ use event4u\DataHelpers\DataMapper\Context\PairContext;
 use event4u\DataHelpers\DataMapper\MapperExceptions;
 use event4u\DataHelpers\DataMapper\Pipeline\FilterInterface;
 use event4u\DataHelpers\DataMapper\Pipeline\FilterRegistry;
+use event4u\DataHelpers\DataMapper\Pipeline\ResolvesSourceArguments;
 use InvalidArgumentException;
 
 /**
@@ -72,8 +73,10 @@ final class FilterEngine
      * before execution and handled independently of their position.
      *
      * @param array<int, string> $filters Filter aliases to apply
+     * @param array<string, mixed> $sources Named data sources, used to resolve filter
+     *     arguments that reference a source path (see ResolvesSourceArguments)
      */
-    public static function apply(mixed $value, array $filters): mixed
+    public static function apply(mixed $value, array $filters, array $sources = []): mixed
     {
         // Extract meta-flags from the filter chain (position-independent)
         [$filters, $isRequired] = self::extractMetaFlags($filters);
@@ -97,7 +100,7 @@ final class FilterEngine
         }
 
         foreach ($filters as $filter) {
-            $value = self::applyFilter($value, $filter);
+            $value = self::applyFilter($value, $filter, $sources);
         }
 
         return $value;
@@ -154,8 +157,12 @@ final class FilterEngine
         return [$cleaned, $isRequired];
     }
 
-    /** Apply a single transformer using its alias. */
-    private static function applyFilter(mixed $value, string $filter): mixed
+    /**
+     * Apply a single transformer using its alias.
+     *
+     * @param array<string, mixed> $sources Named data sources for source-path argument resolution
+     */
+    private static function applyFilter(mixed $value, string $filter, array $sources = []): mixed
     {
         $filter = trim($filter);
 
@@ -176,12 +183,17 @@ final class FilterEngine
                 self::$filterInstances[$filterClass] = $newTransformer;
             }
 
-            $filter = self::$filterInstances[$filterClass];
+            $filterInstance = self::$filterInstances[$filterClass];
+
+            // Resolve arguments that reference a source path (opt-in via marker interface)
+            if ([] !== $args && [] !== $sources && $filterInstance instanceof ResolvesSourceArguments) {
+                $args = self::resolveSourceArguments($args, $sources);
+            }
 
             // Create a context with filter arguments in extra
             $context = new PairContext('template-expression', 0, '', '', [], [], null, $args);
 
-            return $filter->transform($value, $context);
+            return $filterInstance->transform($value, $context);
         }
 
         // Unknown filter alias - throw exception
@@ -189,6 +201,42 @@ final class FilterEngine
             'Unknown filter alias "' . $filterName . '". ' .
             'Create a Filter class with getAliases() method and register it using FilterRegistry::register().'
         );
+    }
+
+    /**
+     * Resolve filter arguments that reference a source path.
+     *
+     * Literal arguments (numeric or true/false/null keywords) are kept as-is.
+     * Any other argument is treated as a source path and resolved against the
+     * given sources; if it does not resolve to a non-null value, the original
+     * string is kept (so literal string arguments keep working).
+     *
+     * @param array<int, string> $args
+     * @param array<string, mixed> $sources
+     * @return array<int, mixed>
+     */
+    private static function resolveSourceArguments(array $args, array $sources): array
+    {
+        foreach ($args as $index => $arg) {
+            // Numeric literals are used directly
+            if (is_numeric($arg)) {
+                continue;
+            }
+
+            // Boolean/null keywords (and empty strings) are literals, not paths
+            $lower = strtolower(trim($arg));
+            if (in_array($lower, ['true', 'false', 'null', ''], true)) {
+                continue;
+            }
+
+            // Treat as a source path; keep the original string when it does not resolve
+            $resolved = ExpressionEvaluator::resolveSourcePath($arg, $sources);
+            if (null !== $resolved) {
+                $args[$index] = $resolved;
+            }
+        }
+
+        return $args;
     }
 
     /**
