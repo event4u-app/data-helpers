@@ -178,7 +178,11 @@ class XmlConverter implements ConverterInterface
         }
     }
 
-    /** Returns true when every element of an indexed list is an associative array (object). */
+    /**
+     * Returns true when every element of an indexed list is an associative array (object).
+     *
+     * @param array<mixed> $list
+     */
     private function isListOfObjects(array $list): bool
     {
         if ([] === $list) {
