@@ -25,7 +25,7 @@ test('FastPath fastToArray() produces same result as normal toArray() for simple
 });
 
 test('FastPath handles null values correctly', function(): void {
-    $dto = new SimpleDtoForFastPath(name: 'Test', age: null, email: null);
+    $dto = new SimpleDtoForFastPath(name: 'Test');
 
     $result = FastPath::fastToArray($dto);
 
@@ -37,7 +37,7 @@ test('FastPath handles null values correctly', function(): void {
 });
 
 test('FastPath handles all null values correctly', function(): void {
-    $dto = new SimpleDtoForFastPath(name: null, age: null, email: null);
+    $dto = new SimpleDtoForFastPath();
 
     $result = FastPath::fastToArray($dto);
 
@@ -65,7 +65,7 @@ test('FastPath handles nested DTOs correctly', function(): void {
 });
 
 test('FastPath handles null nested DTO correctly', function(): void {
-    $dto = new DtoWithNestedDto(name: 'Parent', nested: null);
+    $dto = new DtoWithNestedDto(name: 'Parent');
 
     $result = FastPath::fastToArray($dto);
 

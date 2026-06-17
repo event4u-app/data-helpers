@@ -133,7 +133,7 @@ class DataAccessorBench
             return;
         }
 
-        WildcardHandler::normalizeWildcardArray($result);
+        $result = WildcardHandler::normalizeWildcardArray($result);
     }
 
     #[Revs(1000)]
@@ -146,6 +146,6 @@ class DataAccessorBench
             return;
         }
 
-        WildcardHandler::normalizeWildcardArray($result);
+        $result = WildcardHandler::normalizeWildcardArray($result);
     }
 }

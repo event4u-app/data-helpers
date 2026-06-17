@@ -57,6 +57,21 @@ parameters:
         # the methods always exist, so the check narrows to "always true".
         - message: '#^Call to function method_exists\(\) with \$this\(event4u\\DataHelpers\\LiteDto\\LiteDto\) and .(toModel|toEntity). will always evaluate to true\.$#'
           identifier: function.alreadyNarrowedType
+        # SimpleDtoTrait and SimpleDtoObjectTrait use defensive method_exists/property_exists
+        # checks that PHPStan narrows to always-true in concrete class contexts.
+        # Inline @phpstan-ignore-line does not suppress context-specific trait errors.
+        - message: '#^Call to function (method_exists|property_exists)\(\) with .* will always evaluate to true\.$#'
+          identifier: function.alreadyNarrowedType
+          paths:
+              - src/SimpleDto/SimpleDtoTrait.php
+              - src/SimpleDto/SimpleDtoObjectTrait.php
+        # Defensive runtime class_exists() checks; Symfony/Doctrine may not be installed.
+        - message: '#^Call to function class_exists\(\) with .* will always evaluate to false\.$#'
+          identifier: function.impossibleType
+          paths:
+              - src/Helpers/ConfigHelper.php
+              - src/Logging/LoggerFactory.php
+              - src/Support/Traits/BaseObjectTrait.php
         - message: '#Access to an undefined property PHPUnit\\Framework\\TestCase::\$.*#'
           paths:
               - examples/*
