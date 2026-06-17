@@ -150,7 +150,16 @@ class XmlConverter implements ConverterInterface
             // Sanitize key name
             $key = $this->sanitizeTagName($key);
 
-            if (is_array($value)) {
+            if (is_array($value) && array_is_list($value) && $this->isListOfObjects($value)) {
+                // Indexed list of objects → each item becomes a sibling element with the same tag name.
+                // Example: ['Lohn' => [[...], [...]]] → <Lohn>...</Lohn><Lohn>...</Lohn>
+                foreach ($value as $item) {
+                    /** @var array<string, mixed> $item */
+                    $child = $dom->createElement($key);
+                    $parent->appendChild($child);
+                    $this->arrayToXml($item, $child, $dom);
+                }
+            } elseif (is_array($value)) {
                 /** @var array<string, mixed> $value */
                 $child = $dom->createElement($key);
                 $parent->appendChild($child);
@@ -167,6 +176,22 @@ class XmlConverter implements ConverterInterface
                 $parent->appendChild($child);
             }
         }
+    }
+
+    /** Returns true when every element of an indexed list is an associative array (object). */
+    private function isListOfObjects(array $list): bool
+    {
+        if ([] === $list) {
+            return false;
+        }
+
+        foreach ($list as $item) {
+            if (!is_array($item)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /** Sanitize tag name to be valid XML. */
