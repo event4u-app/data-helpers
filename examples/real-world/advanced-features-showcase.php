@@ -180,9 +180,7 @@ $user = new AdvancedUserDto(
     // callbackField: 'callback data', // Removed due to PHP attribute limitation
     activeData: 'active user data',
     notDeletedData: 'not deleted',
-    deletedData: null,
     activeUserData: 'active',
-    inactiveUserData: null,
     adminData: 'admin data',
     statusData: 'status data',
     profile: [
@@ -195,7 +193,6 @@ $user = new AdvancedUserDto(
     ],
     privateEmail: 'private@example.com',
     adminPanel: ['dashboard', 'users', 'settings'],
-    posts: null,
 );
 
 echo sprintf('User: %s%s', $user->name, PHP_EOL);
