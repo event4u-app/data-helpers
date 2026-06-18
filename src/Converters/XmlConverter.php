@@ -24,6 +24,10 @@ class XmlConverter implements ConverterInterface
         private readonly string $version = '1.0',
         private readonly string $encoding = 'UTF-8',
         private readonly bool $formatOutput = true,
+        private readonly bool $includeDeclaration = true,
+        private readonly bool $skipNullValues = false,
+        private readonly bool $expandEmptyElements = false,
+        private readonly bool $skipEmptyArrays = false,
     ) {}
 
     /**
@@ -125,7 +129,12 @@ class XmlConverter implements ConverterInterface
 
         $this->arrayToXml($data, $root, $dom);
 
-        $xml = $dom->saveXML();
+        $saveOptions = $this->expandEmptyElements ? LIBXML_NOEMPTYTAG : 0;
+
+        // Without a declaration only the root node is serialized, which omits the XML prolog.
+        $xml = $this->includeDeclaration
+            ? $dom->saveXML(null, $saveOptions)
+            : $dom->saveXML($root, $saveOptions);
 
         if (false === $xml) {
             throw new InvalidArgumentException('Failed to generate XML');
@@ -142,6 +151,16 @@ class XmlConverter implements ConverterInterface
     private function arrayToXml(array $data, DOMElement $parent, DOMDocument $dom): void
     {
         foreach ($data as $key => $value) {
+            // Omit null leaves entirely instead of emitting <tag nil="true"/>.
+            if (null === $value && $this->skipNullValues) {
+                continue;
+            }
+
+            // Omit empty repeating blocks entirely instead of emitting an empty <tag></tag>.
+            if ([] === $value && $this->skipEmptyArrays) {
+                continue;
+            }
+
             // Handle numeric keys
             if (is_numeric($key)) {
                 $key = 'item';

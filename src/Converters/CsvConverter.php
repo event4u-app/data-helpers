@@ -23,6 +23,10 @@ class CsvConverter implements ConverterInterface
         private readonly string $delimiter = ',',
         private readonly string $enclosure = '"',
         private readonly string $escape = '\\',
+        private readonly string $quoting = 'rfc',
+        private readonly bool $trailingDelimiter = false,
+        private readonly string $lineEnding = PHP_EOL,
+        private readonly bool $finalNewline = false,
     ) {}
 
     /**
@@ -157,25 +161,23 @@ class CsvConverter implements ConverterInterface
             return '';
         }
 
-        $output = '';
-
         // Flatten nested arrays
         $flatData = array_map($this->flattenArray(...), $data);
 
         // Get headers from first row
         $headers = array_keys($flatData[0]);
 
-        // Add headers
+        $lines = [];
+
         if ($this->includeHeaders) {
-            $output .= $this->formatRow($headers) . PHP_EOL;
+            $lines[] = $this->formatRow($headers);
         }
 
-        // Add rows
         foreach ($flatData as $row) {
-            $output .= $this->formatRow(array_values($row)) . PHP_EOL;
+            $lines[] = $this->formatRow(array_values($row));
         }
 
-        return rtrim($output, PHP_EOL);
+        return $this->joinLines($lines);
     }
 
     /**
@@ -186,17 +188,28 @@ class CsvConverter implements ConverterInterface
     private function serializeSingleRow(array $data): string
     {
         $flat = $this->flattenArray($data);
-        $output = '';
 
-        // Add headers
+        $lines = [];
+
         if ($this->includeHeaders) {
-            $output .= $this->formatRow(array_keys($flat)) . PHP_EOL;
+            $lines[] = $this->formatRow(array_keys($flat));
         }
 
-        // Add values
-        $output .= $this->formatRow(array_values($flat));
+        $lines[] = $this->formatRow(array_values($flat));
 
-        return $output;
+        return $this->joinLines($lines);
+    }
+
+    /**
+     * Join formatted CSV lines with the configured line ending, optionally terminating the output.
+     *
+     * @param array<int, string> $lines
+     */
+    private function joinLines(array $lines): string
+    {
+        $output = implode($this->lineEnding, $lines);
+
+        return $this->finalNewline ? $output . $this->lineEnding : $output;
     }
 
     /**
@@ -236,7 +249,9 @@ class CsvConverter implements ConverterInterface
             $formatted[] = $this->formatValue($value);
         }
 
-        return implode($this->delimiter, $formatted);
+        $line = implode($this->delimiter, $formatted);
+
+        return $this->trailingDelimiter ? $line . $this->delimiter : $line;
     }
 
     /** Format a value for CSV output. */
@@ -251,6 +266,12 @@ class CsvConverter implements ConverterInterface
         }
 
         $value = (string)$value;
+
+        // "none" quoting never encloses: it strips the delimiter and replaces line breaks with spaces
+        // so a raw field can never break the column layout.
+        if ('none' === $this->quoting) {
+            return str_replace([$this->delimiter, "\r", "\n"], ['', ' ', ' '], $value);
+        }
 
         // Check if value needs enclosure
         if ($this->needsEnclosure($value)) {
