@@ -119,7 +119,9 @@ class CsvConverter implements ConverterInterface
     /**
      * Convert array to CSV string.
      *
-     * @param array<string, mixed> $data
+     * Accepts either a single row (associative array) or a collection (list of rows).
+     *
+     * @param array<string, mixed>|array<int, array<string, mixed>> $data
      */
     public function fromArray(array $data): string
     {
@@ -130,13 +132,14 @@ class CsvConverter implements ConverterInterface
         }
 
         // Single row
+        /** @var array<string, mixed> $data */
         return $this->serializeSingleRow($data);
     }
 
     /**
      * Check if data is a collection.
      *
-     * @param array<string, mixed> $data
+     * @param array<string, mixed>|array<int, array<string, mixed>> $data
      */
     private function isCollection(array $data): bool
     {
