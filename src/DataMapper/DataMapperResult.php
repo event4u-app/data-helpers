@@ -122,11 +122,26 @@ final readonly class DataMapperResult
      * Convert result to XML string.
      *
      * @param string $rootElement Root element name (default: 'root')
+     * @param bool $includeDeclaration Emit the <?xml …?> prolog (default: true)
+     * @param bool $skipNullValues Omit null leaves instead of emitting <tag nil="true"/> (default: false)
+     * @param bool $expandEmptyElements Render empty elements as <tag></tag> instead of <tag/> (default: false)
+     * @param bool $skipEmptyArrays Omit empty arrays instead of emitting an empty wrapper element (default: false)
      * @throws ConversionException If conversion fails
      */
-    public function toXml(string $rootElement = 'root'): string
-    {
-        $converter = new XmlConverter($rootElement);
+    public function toXml(
+        string $rootElement = 'root',
+        bool $includeDeclaration = true,
+        bool $skipNullValues = false,
+        bool $expandEmptyElements = false,
+        bool $skipEmptyArrays = false,
+    ): string {
+        $converter = new XmlConverter(
+            rootElement: $rootElement,
+            includeDeclaration: $includeDeclaration,
+            skipNullValues: $skipNullValues,
+            expandEmptyElements: $expandEmptyElements,
+            skipEmptyArrays: $skipEmptyArrays,
+        );
         $array = $this->toArray();
         /** @var array<string, mixed> $array */
         return $converter->fromArray($array);
@@ -151,11 +166,28 @@ final readonly class DataMapperResult
      *
      * @param bool $includeHeaders Whether to include headers (default: true)
      * @param string $delimiter Field delimiter (default: ',')
+     * @param string $quoting Field quoting mode: 'rfc' encloses per RFC 4180, 'none' strips the delimiter (default: 'rfc')
+     * @param bool $trailingDelimiter Append the delimiter to the end of every line (default: false)
+     * @param string $lineEnding Line ending between rows (default: PHP_EOL)
+     * @param bool $finalNewline Terminate the output with a trailing line ending (default: false)
      * @throws ConversionException If conversion fails
      */
-    public function toCsv(bool $includeHeaders = true, string $delimiter = ','): string
-    {
-        $converter = new CsvConverter($includeHeaders, $delimiter);
+    public function toCsv(
+        bool $includeHeaders = true,
+        string $delimiter = ',',
+        string $quoting = 'rfc',
+        bool $trailingDelimiter = false,
+        string $lineEnding = PHP_EOL,
+        bool $finalNewline = false,
+    ): string {
+        $converter = new CsvConverter(
+            includeHeaders: $includeHeaders,
+            delimiter: $delimiter,
+            quoting: $quoting,
+            trailingDelimiter: $trailingDelimiter,
+            lineEnding: $lineEnding,
+            finalNewline: $finalNewline,
+        );
         $array = $this->toArray();
         /** @var array<string, mixed> $array */
         return $converter->fromArray($array);
