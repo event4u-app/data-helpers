@@ -2,7 +2,7 @@
   "name": "event4u/data-helpers-e2e-symfony",
   "description": "E2E tests for Data Helpers with Symfony",
   "type": "project",
-  "license": "proprietary",
+  "license": "MIT",
   "require": {
     "php": "^8.2",
     "symfony/framework-bundle": "^7.0",
