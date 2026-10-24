@@ -1,6 +1,6 @@
 <div align="center">
   <a href="https://event4u.app">
-    <img alt="event4u Data Helpers" src=".github/assets/banner.png">
+    <img alt="event4u Data Helpers" src=".github/assets/info-banner.png">
   </a>
 </div>
 
