@@ -1,0 +1,6 @@
+{
+  "verification": "unverified",
+  "reason": "@playwright/test is not installed (a devDependency)",
+  "viewports": [],
+  "graph_generation": "fd7930ec0866ae71"
+}
