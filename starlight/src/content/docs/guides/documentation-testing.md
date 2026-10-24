@@ -136,7 +136,9 @@ use event4u\DataHelpers\DataMapper;
 $result = DataMapper::source(['name' => 'John'])
     ->template(['full_name' => '{{ name }}'])
     ->map();
+```
 
+```php skip-test
 // ❌ Bad - Incomplete
 $result = DataMapper::source($data)  // Where does $data come from?
     ->template($template)             // Where does $template come from?
